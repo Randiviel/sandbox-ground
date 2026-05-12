@@ -70,11 +70,14 @@
         </footer>
     </div>
 
-  <script type="module">
+<!-- DODAJ TO DO BODY -->
+<div id="loading-screen" style="text-align:center; margin-top: 50px;">
+    <h2>Ładowanie... 🦫</h2>
+</div>
+
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    // DODANO: getRedirectResult
     import { getAuth, signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyA2PSFQmRRFEg1vRNYNcJuDXeMpGKu-574",
@@ -88,38 +91,35 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    // KROK 1: Obsługa powrotu z logowania (Redirect)
-    getRedirectResult(auth)
-        .then((result) => {
-            if (result) {
-                console.log("Pomyślnie odebrano dane z Google!");
-            }
-        }).catch((error) => {
-            console.error("Błąd przekierowania:", error);
-        });
-
-    // KROK 2: Funkcje dla przycisków
+    // 1. Funkcje globalne dla przycisków
     window.handleLogin = () => signInWithRedirect(auth, provider);
-    
-    window.handleLogout = () => signOut(auth).then(() => {
-        window.location.reload();
-    });
+    window.handleLogout = () => signOut(auth).then(() => window.location.reload());
 
-    // KROK 3: Strażnik stanu zalogowania
-    onAuthStateChanged(auth, (user) => {
+    // 2. Strażnik stanu
+    onAuthStateChanged(auth, async (user) => {
+        const loadingScreen = document.getElementById('loading-screen');
         const loginScreen = document.getElementById('login-screen');
         const mainContent = document.getElementById('main-content');
         const userName = document.getElementById('user-display-name');
 
+        // Ukrywamy ekran ładowania, bo mamy już informację od Firebase
+        loadingScreen.style.display = 'none';
+
         if (user) {
-            console.log("Użytkownik rozpoznany:", user.displayName);
+            console.log("SUKCES! Zalogowano jako:", user.displayName);
             loginScreen.style.display = 'none';
             mainContent.style.display = 'block';
             userName.innerText = user.displayName;
         } else {
+            // SPRAWDZAMY CZY WŁAŚNIE WRÓCILIŚMY Z REDIRECTA
+            const result = await getRedirectResult(auth);
+            if (result) {
+                // Jeśli result istnieje, to znaczy że właśnie nas zalogowało
+                // onAuthStateChanged zaraz odpali się drugi raz z 'user', więc nic nie robimy
+                return; 
+            }
             console.log("Brak sesji - pokazuję ekran logowania");
             loginScreen.style.display = 'flex';
             mainContent.style.display = 'none';
