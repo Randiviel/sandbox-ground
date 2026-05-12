@@ -1,96 +1,91 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Kurierów</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> <!-- Prosty wygląd bez pisania CSS -->
+    <title>Bóbr Europejski - Inżynier Natury</title>
+    <!-- Water.css - automatyczny styl (jasny/ciemny) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <style>
+        .hero-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: rgba(0, 128, 128, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
 
     <header>
-        <h1>Dashboard Wyników</h1>
-        <div id="auth-section">
-            <button id="login-btn">Zaloguj przez Google</button>
-            <span id="user-info" style="display: none;">
-                Witaj, <b id="user-name"></b>!
-                <button id="logout-btn">Wyloguj</button>
-            </span>
-        </div>
+        <h1>🦫 Bóbr Europejski</h1>
+        <p><em>Castor fiber</em> – największy gryzoń Europy i genialny hydrotechnik.</p>
     </header>
 
-    <hr>
+    <img src="https://images.unsplash.com/photo-1581067720293-8ac44399e599?auto=format&fit=crop&q=80&w=1000" alt="Bóbr w wodzie" class="hero-img">
 
-    <main id="content" style="display: none;">
-        <h2>Lista Kurierów</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Imię i Nazwisko</th>
-                    <th>Wynik (%)</th>
-                    <th>Akcja</th>
-                </tr>
-            </thead>
-            <tbody id="couriers-list">
-                <!-- Tu wpadną dane z JS -->
-            </tbody>
-        </table>
-    </main>
+    <section>
+        <h2>Dlaczego bobry są niesamowite?</h2>
+        <p>Bobry to jedne z niewielu zwierząt (poza ludźmi), które potrafią celowo modyfikować środowisko, aby dostosować je do swoich potrzeb. Budując tamy, tworzą mokradła, które zatrzymują wodę i zwiększają różnorodność biologiczną.</p>
+    </section>
 
-    <!-- Skrypty Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    <section>
+        <h2>Szybkie Fakty</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>30 kg</h3>
+                <p>Tyle może ważyć dorosły osobnik</p>
+            </div>
+            <div class="stat-card">
+                <h3>15 min</h3>
+                <p>Potrafi wytrzymać pod wodą</p>
+            </div>
+            <div class="stat-card">
+                <h3>∞</h3>
+                <p>Zęby bobra rosną przez całe życie</p>
+            </div>
+        </div>
+    </section>
 
-        const firebaseConfig = {
-            apiKey: "TWÓJ_KLUCZ",
-            authDomain: "TWÓJ_PROJEKT.firebaseapp.com",
-            projectId: "TWÓJ_PROJEKT",
-            // ... reszta danych z konsoli Firebase
-        };
+    <section>
+        <h2>Supermoce bobrów</h2>
+        <ul>
+            <li><strong>Pomarańczowe zęby:</strong> Mają w szkliwie żelazo, dzięki czemu są twardsze niż u innych gryzoni.</li>
+            <li><strong>Przezroczyste powieki:</strong> Działają jak gogle do pływania pod wodą.</li>
+            <li><strong>Ogon jak kielnia:</strong> Służy jako ster, magazyn tłuszczu i narzędzie do alarmowania (uderzanie o tafle wody).</li>
+        </ul>
+    </section>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+    <blockquote>
+        "Bóbr to nie tylko zwierzę, to system zarządzania zasobami wodnymi w futrze."
+    </blockquote>
 
-        // Elementy strony
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const userInfo = document.getElementById('user-info');
-        const content = document.getElementById('content');
-        const userName = document.getElementById('user-name');
+    <section>
+        <h2>Gdzie je spotkać?</h2>
+        <p>W Polsce bobry są pod ochroną częściową. Możesz je spotkać nad rzekami, jeziorami i w rowach melioracyjnych (często ku irytacji rolników). Jeśli zobaczysz ścięte drzewa w kształcie "ołówka" – wiesz, że tam są!</p>
+    </section>
 
-        // Logowanie
-        loginBtn.onclick = () => signInWithPopup(auth, provider);
-        logoutBtn.onclick = () => signOut(auth);
+    <footer>
+        <p>Strona stworzona hobbystycznie na GitHub Pages • 2026</p>
+    </footer>
 
-        // Śledzenie stanu użytkownika (Zalogowany/Wylogowany)
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Sprawdzenie domeny (opcjonalnie, jak rozmawialiśmy wcześniej)
-                if (user.email.endsWith("@twoja-firma.pl")) {
-                    loginBtn.style.display = 'none';
-                    userInfo.style.display = 'block';
-                    content.style.display = 'block';
-                    userName.innerText = user.displayName;
-                    loadCouriers(); // Funkcja ładująca dane
-                } else {
-                    alert("Tylko dla pracowników!");
-                    signOut(auth);
-                }
-            } else {
-                loginBtn.style.display = 'block';
-                userInfo.style.display = 'none';
-                content.style.display = 'none';
-            }
-        });
-
-        function loadCouriers() {
-            // Tutaj dopiszesz pobieranie danych z Firestore
-            const list = document.getElementById('couriers-list');
-            list.innerHTML = `<tr><td>Jan Kowalski</td><td>98%</td><td><button>Zapisz</button></td></tr>`;
-        }
-    </script>
 </body>
 </html>
