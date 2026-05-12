@@ -70,56 +70,61 @@
         </footer>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    // DODANO: getRedirectResult
+    import { getAuth, signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA2PSFQmRRFEg1vRNYNcJuDXeMpGKu-574",
-            authDomain: "sandbox-ground-1a0af.firebaseapp.com",
-            projectId: "sandbox-ground-1a0af",
-            storageBucket: "sandbox-ground-1a0af.firebasestorage.app",
-            messagingSenderId: "789099240147",
-            appId: "1:789099240147:web:abf4e5f63c3db3952c1226",
-            measurementId: "G-JSF9TY813P"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyA2PSFQmRRFEg1vRNYNcJuDXeMpGKu-574",
+        authDomain: "sandbox-ground-1a0af.firebaseapp.com",
+        projectId: "sandbox-ground-1a0af",
+        storageBucket: "sandbox-ground-1a0af.firebasestorage.app",
+        messagingSenderId: "789099240147",
+        appId: "1:789099240147:web:abf4e5f63c3db3952c1226",
+        measurementId: "G-JSF9TY813P"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-        // Funkcja logowania
-        window.handleLogin = () => {
-            const provider = new (window.googleProvider || (window.googleProvider = new (require('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js').GoogleAuthProvider)));
-            // Powyższe to skrót, użyjemy prostego providera:
-        };
-
-        // Poprawny import providera w module:
-        import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        const provider = new GoogleAuthProvider();
-
-        window.handleLogin = () => signInWithRedirect(auth, provider);
-        
-        window.handleLogout = () => signOut(auth).then(() => {
-            window.location.reload(); // Odśwież stronę po wylogowaniu
-        });
-
-        // REAKCJA NA ZMIANĘ STANU LOGOWANIA
-        onAuthStateChanged(auth, (user) => {
-            const loginScreen = document.getElementById('login-screen');
-            const mainContent = document.getElementById('main-content');
-            const userName = document.getElementById('user-display-name');
-
-            if (user) {
-                // Użytkownik zalogowany
-                loginScreen.style.display = 'none';
-                mainContent.style.display = 'block';
-                userName.innerText = user.displayName;
-            } else {
-                // Użytkownik wylogowany
-                loginScreen.style.display = 'flex';
-                mainContent.style.display = 'none';
+    // KROK 1: Obsługa powrotu z logowania (Redirect)
+    getRedirectResult(auth)
+        .then((result) => {
+            if (result) {
+                console.log("Pomyślnie odebrano dane z Google!");
             }
+        }).catch((error) => {
+            console.error("Błąd przekierowania:", error);
         });
-    </script>
+
+    // KROK 2: Funkcje dla przycisków
+    window.handleLogin = () => signInWithRedirect(auth, provider);
+    
+    window.handleLogout = () => signOut(auth).then(() => {
+        window.location.reload();
+    });
+
+    // KROK 3: Strażnik stanu zalogowania
+    onAuthStateChanged(auth, (user) => {
+        const loginScreen = document.getElementById('login-screen');
+        const mainContent = document.getElementById('main-content');
+        const userName = document.getElementById('user-display-name');
+
+        if (user) {
+            console.log("Użytkownik rozpoznany:", user.displayName);
+            loginScreen.style.display = 'none';
+            mainContent.style.display = 'block';
+            userName.innerText = user.displayName;
+        } else {
+            console.log("Brak sesji - pokazuję ekran logowania");
+            loginScreen.style.display = 'flex';
+            mainContent.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
