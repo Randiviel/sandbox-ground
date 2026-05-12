@@ -89,42 +89,38 @@
         measurementId: "G-JSF9TY813P"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+    try {
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-    // 1. Funkcje globalne dla przycisków
-    window.handleLogin = () => signInWithRedirect(auth, provider);
-    window.handleLogout = () => signOut(auth).then(() => window.location.reload());
+        window.handleLogin = () => signInWithRedirect(auth, provider);
+        window.handleLogout = () => signOut(auth).then(() => window.location.reload());
 
-    // 2. Strażnik stanu
-    onAuthStateChanged(auth, async (user) => {
-        const loadingScreen = document.getElementById('loading-screen');
-        const loginScreen = document.getElementById('login-screen');
-        const mainContent = document.getElementById('main-content');
-        const userName = document.getElementById('user-display-name');
+        console.log("Próbuję sprawdzić stan użytkownika...");
 
-        // Ukrywamy ekran ładowania, bo mamy już informację od Firebase
-        loadingScreen.style.display = 'none';
+        onAuthStateChanged(auth, async (user) => {
+            console.log("Otrzymano odpowiedź od Firebase!");
+            document.getElementById('loading-screen').style.display = 'none';
 
-        if (user) {
-            console.log("SUKCES! Zalogowano jako:", user.displayName);
-            loginScreen.style.display = 'none';
-            mainContent.style.display = 'block';
-            userName.innerText = user.displayName;
-        } else {
-            // SPRAWDZAMY CZY WŁAŚNIE WRÓCILIŚMY Z REDIRECTA
-            const result = await getRedirectResult(auth);
-            if (result) {
-                // Jeśli result istnieje, to znaczy że właśnie nas zalogowało
-                // onAuthStateChanged zaraz odpali się drugi raz z 'user', więc nic nie robimy
-                return; 
+            if (user) {
+                console.log("Zalogowany:", user.displayName);
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                document.getElementById('user-display-name').innerText = user.displayName;
+            } else {
+                console.log("Niezalogowany - sprawdzam przekierowanie...");
+                const result = await getRedirectResult(auth);
+                if (!result) {
+                    document.getElementById('login-screen').style.display = 'flex';
+                    document.getElementById('main-content').style.display = 'none';
+                }
             }
-            console.log("Brak sesji - pokazuję ekran logowania");
-            loginScreen.style.display = 'flex';
-            mainContent.style.display = 'none';
-        }
-    });
+        });
+    } catch (err) {
+        document.body.innerHTML = `<h1 style="color:red">BŁĄD KRYTYCZNY: ${err.message}</h1>`;
+        console.error(err);
+    }
 </script>
 </body>
 </html>
