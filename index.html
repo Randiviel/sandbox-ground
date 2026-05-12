@@ -94,6 +94,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // Konfiguracja
         const firebaseConfig = {
@@ -124,6 +125,15 @@
                 alert("Błąd logowania! Sprawdź konsolę (F12)");
             }
         };
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            console.log("SUKCES! Zalogowano jako:", user.displayName);
+            document.body.innerHTML += `<h2>Witaj ${user.displayName}!</h2>`;
+          } else {
+            console.log("Nikt nie jest zalogowany.");
+          }
+        });
     </script>
     
 </body>
