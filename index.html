@@ -82,8 +82,9 @@
 
         <section>
             <h2>Sekretne informacje</h2>
-            <p>Skoro tu jesteś, znaczy że przeszedłeś autoryzację. Bobry budują tamy tak solidne, że mogą one przetrwać dziesięciolecia!</p>
-        </section>
+        <section id="dynamic-data" style="border-left: 4px solid #795548; padding-left: 15px; margin: 20px 0;">
+        <p><em>Pobieranie tajnych danych...</em></p>
+    </section>
 
         <footer>
             <p>Zalogowany jako systemowy obserwator bobrów • 2026</p>
@@ -142,12 +143,21 @@
         document.getElementById('loading-screen').style.display = 'none';
 
         if (user) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
+            // Pokazujemy szkielet strony
+            loginScreen.style.display = 'none';
+            mainContent.style.display = 'block';
             document.getElementById('user-display-name').innerText = user.displayName;
-        } else {
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'none';
+        
+            // Pobieramy dane z bazy, których NIE MA w pliku HTML
+            const docRef = doc(db, "strona_tresc", "bobry_info");
+            const docSnap = await getDoc(docRef);
+        
+            if (docSnap.exists()) {
+                document.getElementById('dynamic-data').innerHTML = `
+                    <h3>Tajna wiedza z bazy w Sztokholmie:</h3>
+                    <p>${docSnap.data().sekret}</p>
+                `;
+            }
         }
     });
     
