@@ -37,6 +37,26 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .falling-beaver {
+            position: fixed;
+            top: -50px;
+            font-size: 3rem;
+            pointer-events: none; /* Żeby nie dało się go kliknąć w locie */
+            z-index: 9999;
+            animation: fall 2s linear forwards;
+        }
     </style>
 </head>
 <body>
@@ -68,6 +88,10 @@
         <footer>
             <p>Zalogowany jako systemowy obserwator bobrów • 2026</p>
         </footer>
+
+        <div style="text-align: center; margin-top: 30px;">
+        <button onclick="dropBeaver()" style="background-color: #795548; color: white;">Wciśnij mnie 🦫</button>
+        </div>
     </div>
 
 <!-- DODAJ TO DO BODY -->
@@ -126,6 +150,23 @@
             document.getElementById('main-content').style.display = 'none';
         }
     });
+    
+        window.dropBeaver = () => {
+        const beaver = document.createElement('div');
+        beaver.innerText = '🦫';
+        beaver.className = 'falling-beaver';
+        
+        // Losujemy pozycję poziomą, żeby bobry nie spadały tylko w jednym miejscu
+        const randomLeft = Math.floor(Math.random() * window.innerWidth);
+        beaver.style.left = randomLeft + 'px';
+        
+        document.body.appendChild(beaver);
+        
+        // Usuwamy element z kodu po zakończeniu animacji, żeby nie zaśmiecać strony
+        setTimeout(() => {
+            beaver.remove();
+        }, 2000);
+    };
 </script>
 </body>
 </html>
