@@ -77,7 +77,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    // Zmieniamy Redirect na Popup
+    import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyA2PSFQmRRFEg1vRNYNcJuDXeMpGKu-574",
@@ -89,38 +90,42 @@
         measurementId: "G-JSF9TY813P"
     };
 
-    try {
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-        window.handleLogin = () => signInWithRedirect(auth, provider);
-        window.handleLogout = () => signOut(auth).then(() => window.location.reload());
-
-        console.log("Próbuję sprawdzić stan użytkownika...");
-
-        onAuthStateChanged(auth, async (user) => {
-            console.log("Otrzymano odpowiedź od Firebase!");
-            document.getElementById('loading-screen').style.display = 'none';
-
-            if (user) {
-                console.log("Zalogowany:", user.displayName);
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                document.getElementById('user-display-name').innerText = user.displayName;
+    // Funkcja logowania przez Popup
+    window.handleLogin = async () => {
+        try {
+            await signInWithPopup(auth, provider);
+            // Po sukcesie Popup sam się zamknie, a onAuthStateChanged zrobi resztę
+        } catch (error) {
+            console.error("Błąd Popup:", error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                alert("Zamknąłeś okienko logowania zbyt szybko.");
             } else {
-                console.log("Niezalogowany - sprawdzam przekierowanie...");
-                const result = await getRedirectResult(auth);
-                if (!result) {
-                    document.getElementById('login-screen').style.display = 'flex';
-                    document.getElementById('main-content').style.display = 'none';
-                }
+                alert("Błąd logowania: " + error.message);
             }
-        });
-    } catch (err) {
-        document.body.innerHTML = `<h1 style="color:red">BŁĄD KRYTYCZNY: ${err.message}</h1>`;
-        console.error(err);
-    }
+        }
+    };
+
+    window.handleLogout = () => signOut(auth).then(() => window.location.reload());
+
+    // Strażnik stanu - jedyny, który zarządza widocznością
+    onAuthStateChanged(auth, (user) => {
+        console.log("Status użytkownika:", user ? "Zalogowany" : "Wylogowany");
+        
+        document.getElementById('loading-screen').style.display = 'none';
+
+        if (user) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('user-display-name').innerText = user.displayName;
+        } else {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+        }
+    });
 </script>
 </body>
 </html>
